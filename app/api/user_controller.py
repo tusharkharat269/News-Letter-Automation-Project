@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 import uuid
 
-from db.init_db import SessionLocal
-from model.User_model import User
-from dto.user_dto import UserCreate, UserRead
+from app.db import init_db
+from app.model.User_model import User
+from app.dto.user_dto import UserCreate, UserRead
 
 # Create a router
 router = APIRouter(
@@ -13,17 +13,9 @@ router = APIRouter(
     tags=["Users"],
 )
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 # Create user
 @router.post("/", response_model=UserRead)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
+def create_user(user: UserCreate, db: Session = Depends(init_db.get_db)):
     db_user = User(
         name=user.name,
         email=user.email,
@@ -42,12 +34,12 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 # Get all users
 @router.get("/", response_model=List[UserRead])
-def get_users(db: Session = Depends(get_db)):
+def get_users(db: Session = Depends(init_db.get_db)):
     return db.query(User).all()
 
 # Get user by ID
 @router.get("/{user_id}", response_model=UserRead)
-def get_user(user_id: uuid.UUID, db: Session = Depends(get_db)):
+def get_user(user_id: uuid.UUID, db: Session = Depends(init_db.get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

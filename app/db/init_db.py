@@ -21,8 +21,6 @@ engine = create_engine(DATABASE_URL, echo=True)
 # Session maker
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-
 # -------------------
 # Dependency
 # -------------------
